@@ -1,0 +1,54 @@
+trappic = []
+
+eeltrap = []
+
+setup = {
+    eeltrap = drone.objectToFind(arrayOfPictures)
+}
+
+loop = {
+    patrol(speed = 30, distance = 40)
+
+    if(trappic.empty != true) {
+        send(trappic)
+    }
+}
+
+checkIfEelTrap = {
+    if (drone.cam.read() == eeltrap) {
+        trappic.push(drone.cam.save())
+        return true
+    } else {
+        return false
+    }
+}
+
+patrol = {
+    drone.fly(
+        directions = north,
+        speed = param.speed,
+        distance = param.distance
+        whileFlying = { checkIfEelTrap() }
+    )
+
+    drone.fly(
+        directions = south,
+        speed = param.speed,
+        distance = param.distance
+        whileFlying = { checkIfEelTrap() }
+    )
+
+    drone.fly(
+        directions = east,
+        speed = param.speed,
+        distance = param.distance,
+        whilefly = { checkIfEelTrap() }
+    )
+
+    drone.fly(
+        directions = west,
+        speed = param.speed,
+        distance = param.distance,
+        whilefly = { checkIfEelTrap() }
+    )
+}
