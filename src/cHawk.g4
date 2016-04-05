@@ -26,6 +26,7 @@ selection_statement
     | 'if' '(' expression ')' '{' program '}' 'else' '{' program '}'
     ;
 
+// TODO fejl i for loop efter "to"
 iteration_statement
     : 'for' '(' variable_statement 'to' NUMBER 'by' NUMBER ')' '{' program '}'
     | 'while' '(' expression ')' '{' program '}'
@@ -36,12 +37,13 @@ expression
     : VALUE
     | variable_expression
     | function_expression
-    | expression EXPRESSION_OPERATORS expression
+    | expression EXPRESSION_OPERATORS expression // TODO kan de laves således eller skal de udpensles mere
     ;
 
 variable_expression
     : IDENTIFIER
     | IDENTIFIER '.' variable_expression
+    | IDENTIFIER '[' expression ']' // TODO den ser ikke en value som en expression
     ;
 
 function_expression
@@ -66,7 +68,7 @@ IDENTIFIER
 VALUE
     : STRING
     | NUMBER
-    | ARRAY
+    //| ARRAY //TODO den kan ikke finde ud af om det er et expression eller et statement
     ;
 
 NUMBER
