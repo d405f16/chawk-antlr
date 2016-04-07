@@ -1,16 +1,16 @@
-trappic = []
-
-eeltrap = []
+ellTrap = []
+trapPictures = []
+arrayOfPictures = []
 
 setup = {
-    eeltrap = drone.objectToFind(arrayOfPictures)
+    eeltrap = drone.objectToFind(object = arrayOfPictures)
 }
 
-loop = {
+route = {
     patrol(speed = 30, distance = 40)
 
-    if(trappic.empty != true) {
-        send(trappic)
+    if(trapPictures.empty() != true) {
+        drone.send(trapPictures)
     }
 }
 
@@ -27,14 +27,14 @@ patrol = {
     drone.fly(
         directions = north,
         speed = param.speed,
-        distance = param.distance
+        distance = param.distance,
         whileFlying = { checkIfEelTrap() }
     )
 
     drone.fly(
         directions = south,
         speed = param.speed,
-        distance = param.distance
+        distance = param.distance,
         whileFlying = { checkIfEelTrap() }
     )
 

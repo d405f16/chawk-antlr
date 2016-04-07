@@ -1,8 +1,3 @@
-/*
-for loop
-
-*/
-
 grammar cHawk;
 
 program
@@ -24,12 +19,13 @@ statement
 
 variable_statement
     : IDENTIFIER '=' expression
-    | KEYWORD '.' IDENTIFIER '=' expression
+    | IDENTIFIER '.' IDENTIFIER '=' expression
+    | IDENTIFIER '=' '[' (expression (',' expression)*)? ']'
     ;
 
 function_statement
     : IDENTIFIER '=' '{' statement_expression '}'
-    | KEYWORD '.' IDENTIFIER '=' '{' statement_expression '}'
+    | IDENTIFIER '.' IDENTIFIER '=' '{' statement_expression '}'
     ;
 
 setup
@@ -46,19 +42,20 @@ selection_statement
     ;
 
 iteration_statement
-    : 'for' '(' variable_statement 'to' NUMBER 'by' NUMBER ')' '{' statement_expression '}' // TODO for loops virker ikke
+    : 'for' '(' variable_statement 'to' NUMBER 'by' NUMBER ')' '{' statement_expression '}'
     | 'while' '(' expression ')' '{' statement_expression '}'
     ;
 
 
 /* EXPRESSIONS */
 expression
-    : '(' expression ')'
-    | VALUE
-    | IDENTIFIER
-    | KEYWORD '.' IDENTIFIER
-    | expression '[' expression? ']'
-    | expression '(' (named_parameter (',' named_parameter)*)? ')'
+    : value
+    | '(' expression ')'
+    | ('!' | '+' | '-') expression
+
+    | variable_expression
+    | function_expression
+
     | expression ('*' | '/' | '%') expression
     | expression ('+' | '-') expression
     | expression ('<' | '<=' | '>' | '>=') expression
@@ -67,14 +64,25 @@ expression
     | expression '||' expression
     ;
 
+variable_expression
+    : IDENTIFIER
+    | IDENTIFIER '[' expression? ']'
+    | IDENTIFIER '.' variable_expression
+    ;
+
+function_expression
+    : IDENTIFIER '(' (named_parameter (',' named_parameter)*)? ')'
+    | IDENTIFIER '.' function_expression
+    ;
+
 named_parameter
     : variable_statement
     | function_statement
     ;
 
 
-/* LEXER*/
-VALUE
+/* DATATYPES */
+value
     : BOOLEAN
     | NUMBER
     | STRING
@@ -85,33 +93,21 @@ BOOLEAN
     | ('false' | 'FALSE')
     ;
 
-NUMBER
-    : NUMERIC+ ('.' NUMERIC+)?
+NUMBER  // TODO fix negative tal
+    : DIGIT+ ('.' DIGIT+)?
     ;
-
-//NUMBER // TODO fix negative tal
-//    : '-'? NUMERIC+ '.'? NUMERIC*
-//    ;
 
 STRING
     : '"' ~('"' | '\n' | '\r')* '"'
     | '\'' ~('\'' | '\n' | '\r')* '\''
     ;
 
-KEYWORD
-    : 'setup'
-    | 'route'
-    | 'events'
-    | 'drone'
-    | 'param'
-    ;
-
 IDENTIFIER
-    : ALPHABETIC+ (ALPHABETIC | NUMERIC)*
+    : CHARACTER+ (CHARACTER | DIGIT)*
     ;
 
-fragment ALPHABETIC: ('a'..'z'|'A'..'Z');
-fragment NUMERIC: ('0'..'9');
+fragment CHARACTER: ('a'..'z'|'A'..'Z');
+fragment DIGIT: ('0'..'9');
 
 
 /* REMOVE WHITESPACE */
