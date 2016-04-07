@@ -1,6 +1,15 @@
+/*
+for loop
+
+*/
+
 grammar cHawk;
 
 program
+    : statement_expression setup statement_expression route statement_expression
+    ;
+
+statement_expression
     : (statement | expression)*
     ;
 
@@ -14,41 +23,48 @@ statement
     ;
 
 variable_statement
-    : IDENTIFIER ASSIGNMENT_OPERATORS expression
+    : IDENTIFIER '=' expression
+    | KEYWORD '.' IDENTIFIER '=' expression
     ;
 
 function_statement
-    : IDENTIFIER ASSIGNMENT_OPERATORS '{' program '}'
+    : IDENTIFIER '=' '{' statement_expression '}'
+    | KEYWORD '.' IDENTIFIER '=' '{' statement_expression '}'
+    ;
+
+setup
+    : 'setup' '=' '{' statement_expression '}'
+    ;
+
+route
+    : 'route' '=' '{' statement_expression '}'
     ;
 
 selection_statement
-    : 'if' '(' expression ')' '{' program '}'
-    | 'if' '(' expression ')' '{' program '}' 'else' '{' program '}'
+    : 'if' '(' expression ')' '{' statement_expression '}'
+    | 'if' '(' expression ')' '{' statement_expression '}' 'else' '{' statement_expression '}'
     ;
 
-// TODO fejl i for loop efter "to"
 iteration_statement
-    : 'for' '(' variable_statement 'to' NUMBER 'by' NUMBER ')' '{' program '}'
-    | 'while' '(' expression ')' '{' program '}'
+    : 'for' '(' variable_statement 'to' NUMBER 'by' NUMBER ')' '{' statement_expression '}' // TODO for loops virker ikke
+    | 'while' '(' expression ')' '{' statement_expression '}'
     ;
+
 
 /* EXPRESSIONS */
 expression
-    : VALUE
-    | variable_expression
-    | function_expression
-    | expression EXPRESSION_OPERATORS expression // TODO kan de laves således eller skal de udpensles mere
-    ;
-
-variable_expression
-    : IDENTIFIER
-    | IDENTIFIER '.' variable_expression
-    | IDENTIFIER '[' expression ']' // TODO den ser ikke en value som en expression
-    ;
-
-function_expression
-    : IDENTIFIER '(' (named_parameter (',' named_parameter)*)* ')'
-    | IDENTIFIER '.' function_expression
+    : '(' expression ')'
+    | VALUE
+    | IDENTIFIER
+    | KEYWORD '.' IDENTIFIER
+    | expression '[' expression? ']'
+    | expression '(' (named_parameter (',' named_parameter)*)? ')'
+    | expression ('*' | '/' | '%') expression
+    | expression ('+' | '-') expression
+    | expression ('<' | '<=' | '>' | '>=') expression
+    | expression ('==' | '!=' ) expression
+    | expression '&&' expression
+    | expression '||' expression
     ;
 
 named_parameter
@@ -57,59 +73,48 @@ named_parameter
     ;
 
 
-/* IDENTIFER */
-// TODO tal og bogstaver bare ingen tal i starten
-IDENTIFIER
-    : ALPHABETIC+
+/* LEXER*/
+VALUE
+    : BOOLEAN
+    | NUMBER
+    | STRING
     ;
 
-
-/* VALUES */
-VALUE
-    : STRING
-    | NUMBER
-    //| ARRAY //TODO den kan ikke finde ud af om det er et expression eller et statement
+BOOLEAN
+    : ('true' | 'TRUE')
+    | ('false' | 'FALSE')
     ;
 
 NUMBER
-    : '-'? NUMERIC+ '.'? NUMERIC*
+    : NUMERIC+ ('.' NUMERIC+)?
     ;
+
+//NUMBER // TODO fix negative tal
+//    : '-'? NUMERIC+ '.'? NUMERIC*
+//    ;
 
 STRING
     : '"' ~('"' | '\n' | '\r')* '"'
     | '\'' ~('\'' | '\n' | '\r')* '\''
     ;
 
-// TODO virker ikke
-ARRAY
-    : '[' (VALUE (',' VALUE)*)* ']'
+KEYWORD
+    : 'setup'
+    | 'route'
+    | 'events'
+    | 'drone'
+    | 'param'
+    ;
+
+IDENTIFIER
+    : ALPHABETIC+ (ALPHABETIC | NUMERIC)*
     ;
 
 fragment ALPHABETIC: ('a'..'z'|'A'..'Z');
 fragment NUMERIC: ('0'..'9');
 
 
-/* OPERATORS */
-ASSIGNMENT_OPERATORS
-    : '='
-    | '+='
-    | '-='
-    | '*='
-    ;
-
-EXPRESSION_OPERATORS
-    : MULTIPLICATIVE_EXPRESSION_OPERATORS
-    | ADDITIVE_EXPRESSION_OPERATORS
-    | RELATIONAL_EXPRESSION_OPERATORS
-    | EQUALITY_EXPRESSION_OPERATORS
-    | LOGICAL_EXPRESSION_OPERATORS
-    ;
-
-fragment MULTIPLICATIVE_EXPRESSION_OPERATORS: '*' | '/' | '%';
-fragment ADDITIVE_EXPRESSION_OPERATORS: '+' | '-';
-fragment RELATIONAL_EXPRESSION_OPERATORS: '<' | '>' | '<=' | '>=';
-fragment EQUALITY_EXPRESSION_OPERATORS: '==' |  '!=';
-fragment LOGICAL_EXPRESSION_OPERATORS: '&&' | '||';
-
 /* REMOVE WHITESPACE */
 WHITESPACE: (' ' | '\t' | '\r' | '\n') -> skip;
+
+
