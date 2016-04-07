@@ -56,6 +56,7 @@ expression
     | variable_expression
     | function_expression
 
+
     | expression ('*' | '/' | '%') expression
     | expression ('+' | '-') expression
     | expression ('<' | '<=' | '>' | '>=') expression
@@ -93,7 +94,7 @@ BOOLEAN
     | ('false' | 'FALSE')
     ;
 
-NUMBER  // TODO fix negative tal
+NUMBER
     : DIGIT+ ('.' DIGIT+)?
     ;
 
